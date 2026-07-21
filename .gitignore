@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.Python
+
+# 本地环境与配置
+.env
+.venv/
+.paotui/
+.DS_Store
+
+# 构建和测试缓存
+dist/
+build/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.omx/

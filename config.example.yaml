@@ -1,0 +1,31 @@
+# 跑腿的配置文件。复制成 config.yaml 再改。
+# 模型：任何 OpenAI Chat Completions 兼容、支持工具调用的服务都行
+model:
+  provider: openai        # openai（兼容端点都算）或 anthropic（要装 paotui[anthropic]）
+  name: deepseek-chat
+  api_key: $DEEPSEEK_API_KEY   # $VAR 会从环境变量/.env 里取
+  base_url: https://api.deepseek.com
+  # temperature: 0.7
+
+tools:
+  search:
+    enabled: true
+    backend: ddgs         # ddgs（免费，不保证稳定）或 tavily（要 TAVILY_API_KEY）
+    max_results: 8
+  fetch:
+    enabled: true
+    max_chars: 20000
+  files:
+    enabled: true
+  shell:
+    enabled: true
+    allowed_commands: [ls, cat, head, tail, grep, find, wc, date, uname]
+    timeout_seconds: 60
+    allow_all: false      # 开了就啥命令都能跑，后果自负
+  task:
+    enabled: true
+    max_concurrency: 2
+    timeout_seconds: 600
+
+storage:
+  dir: .paotui            # 会话记录（sqlite）放这
