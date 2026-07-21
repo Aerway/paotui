@@ -1,7 +1,7 @@
-"""Agent 的构建入口。
+"""Agent 怎么建。
 
-CLI 只使用 open_sync_agent 与同步 stream；server 只使用 open_async_agent 与
-astream。两套入口绝不混用，避免在错误的执行模型中使用 SQLite checkpoint。
+CLI 用 open_sync_agent 和 stream；server 用 open_async_agent 和 astream。
+SQLite saver 分同步、异步两套，别混用。
 """
 
 from collections.abc import AsyncIterator, Iterator
@@ -20,7 +20,7 @@ from paotui.tools import get_tools
 
 
 def build_agent(config: AppConfig, *, checkpointer: Any = None) -> Any:
-    """构造已编译的 agent 图。"""
+    """建好一个能直接跑的 agent。"""
     return create_agent(
         create_chat_model(config),
         get_tools(config),
@@ -31,7 +31,7 @@ def build_agent(config: AppConfig, *, checkpointer: Any = None) -> Any:
 
 @contextmanager
 def open_sync_agent(config: AppConfig) -> Iterator[Any]:
-    """在同步 SQLite checkpoint 生命周期内构造 agent。"""
+    """给 CLI 用：开着 sqlite 存档的同步 agent。"""
     storage_dir = Path(config.storage.dir)
     storage_dir.mkdir(parents=True, exist_ok=True)
     database_path = storage_dir / "paotui.db"
@@ -48,7 +48,7 @@ def open_sync_agent(config: AppConfig) -> Iterator[Any]:
 
 @asynccontextmanager
 async def open_async_agent(config: AppConfig) -> AsyncIterator[Any]:
-    """在异步 SQLite checkpoint 生命周期内构造 agent。"""
+    """给 server 用：开着 sqlite 存档的异步 agent。"""
     storage_dir = Path(config.storage.dir)
     storage_dir.mkdir(parents=True, exist_ok=True)
     database_path = storage_dir / "paotui.db"

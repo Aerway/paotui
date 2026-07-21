@@ -21,7 +21,7 @@ from tests.fakes import FakeToolCallingModel
 
 @tool
 def echo(text: str) -> str:
-    """回显输入文本。"""
+    """原样返回输入文本。"""
     return text
 
 

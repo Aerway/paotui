@@ -1,4 +1,4 @@
-"""跑腿的命令行入口。"""
+"""命令行入口。"""
 
 from collections.abc import Iterable
 from pathlib import Path
@@ -68,17 +68,16 @@ console = Console()
 
 
 def _new_thread_id() -> str:
-    """生成方便手动续聊的短会话编号。"""
+    """生成短会话 ID，方便续聊。"""
     return uuid4().hex[:8]
 
 
 def _print_error(message: str) -> None:
-    """用统一样式显示用户能处理的错误。"""
     console.print(Text(message, style="red"))
 
 
 def _load_config_or_exit(path: Path | None) -> AppConfig:
-    """读取配置，并把常见配置错误变成友好提示。"""
+    """加载配置；常见错误直接显示给用户。"""
     try:
         return load_config(path)
     except (FileNotFoundError, ValueError) as error:
@@ -87,7 +86,7 @@ def _load_config_or_exit(path: Path | None) -> AppConfig:
 
 
 def render_events(events: Iterable[StreamEvent]) -> str:
-    """把 agent 事件流显示到终端，并返回最终答案。"""
+    """把事件打印到终端，返回最后的回答。"""
     for event in events:
         if isinstance(event, TokenEvent):
             console.print(event.text, end="", markup=False, highlight=False)
@@ -114,7 +113,7 @@ def run(
     thread: str | None = typer.Option(None, "--thread", help="会话编号，可用来续聊"),
     config: Path | None = typer.Option(None, "--config", help="配置文件路径"),
 ) -> None:
-    """问一次问题，拿到一次回答。"""
+    """问一件事。"""
     app_config = _load_config_or_exit(config)
     thread_id = thread or _new_thread_id()
 
@@ -131,7 +130,7 @@ def chat(
     thread: str | None = typer.Option(None, "--thread", help="会话编号，可用来续聊"),
     config: Path | None = typer.Option(None, "--config", help="配置文件路径"),
 ) -> None:
-    """打开一个可以一直聊天的小窗口。"""
+    """进聊天模式。"""
     app_config = _load_config_or_exit(config)
     thread_id = thread or _new_thread_id()
     console.print(f"当前会话：{thread_id}（输入 exit、quit、q 或 Ctrl-D 退出）")
@@ -158,7 +157,7 @@ def serve(
     port: int = typer.Option(8000, "--port", help="监听端口"),
     config: Path | None = typer.Option(None, "--config", help="配置文件路径"),
 ) -> None:
-    """启动给网页或别的程序用的服务。"""
+    """启动 HTTP 服务。"""
     app_config = _load_config_or_exit(config)
 
     import uvicorn
@@ -170,7 +169,7 @@ def serve(
 
 @app.command()
 def init() -> None:
-    """在当前目录放好配置模板。"""
+    """写出配置模板。"""
     for filename, content in (("config.yaml", CONFIG_TEMPLATE), (".env", ENV_TEMPLATE)):
         path = Path.cwd() / filename
         if path.exists():

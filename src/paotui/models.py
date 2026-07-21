@@ -1,4 +1,4 @@
-"""聊天模型的创建入口。"""
+"""建聊天模型。"""
 
 from typing import Any
 
@@ -22,7 +22,7 @@ def _model_options(model_config: ModelConfig) -> dict[str, Any]:
 
 
 def create_chat_model(config: AppConfig) -> Any:
-    """根据配置构造聊天模型，不会在这里发起网络请求。"""
+    """按配置建聊天模型，这里不发请求。"""
     model_config = config.model
     options = _model_options(model_config)
 

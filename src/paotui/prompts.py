@@ -1,4 +1,4 @@
-"""系统提示的构造入口。"""
+"""组装系统提示。"""
 
 from datetime import datetime
 from pathlib import Path
@@ -7,7 +7,7 @@ from paotui.config import AppConfig
 
 
 def build_system_prompt(config: AppConfig) -> str:
-    """构造跑腿助手的系统提示。"""
+    """主助手的系统提示。"""
     return f"""你是跑腿，一个爱干活的小助手。口吻可以可爱，但执行指令必须严肃、可靠。
 
 当前日期：{datetime.now().strftime('%Y-%m-%d')}
@@ -21,7 +21,7 @@ def build_system_prompt(config: AppConfig) -> str:
 
 
 def build_subagent_prompt(config: AppConfig) -> str:
-    """构造临时子助手的系统提示。"""
+    """临时子助手的系统提示。"""
     return (
         f"{build_system_prompt(config)}\n\n"
         "你是被主助手派出来干一个子任务的帮手，独立完成任务后，"

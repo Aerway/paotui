@@ -1,5 +1,3 @@
-"""临时子助手工具测试。"""
-
 import asyncio
 from typing import Any
 
@@ -14,7 +12,6 @@ from tests.fakes import FakeToolCallingModel
 
 
 def make_config(*, enabled: bool = True, timeout_seconds: int = 600) -> AppConfig:
-    """创建 task 工具测试配置。"""
     return AppConfig.model_validate(
         {
             "model": {"name": "test-model"},

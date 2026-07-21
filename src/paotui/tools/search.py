@@ -11,7 +11,7 @@ from paotui.config import SearchToolConfig
 
 
 def _format_results(results: Iterable[Mapping[str, Any]]) -> str:
-    """把不同搜索服务的结果统一成易读文本。"""
+    """把搜索结果排成文本。"""
     sections = []
     for index, result in enumerate(results, start=1):
         title = result.get("title", "（无标题）")
@@ -22,18 +22,18 @@ def _format_results(results: Iterable[Mapping[str, Any]]) -> str:
 
 
 def _get_tavily_client_class() -> Any:
-    """按需导入 Tavily，便于测试时替换这个工厂。"""
+    """延迟导入 Tavily，让测试能替换这个工厂。"""
     from tavily import TavilyClient
 
     return TavilyClient
 
 
 def make_search_tool(search_config: SearchToolConfig):
-    """按配置创建网页搜索工具。"""
+    """按配置建搜索工具。"""
 
     @tool
     def web_search(query: str) -> str:
-        """搜索互联网，返回标题、链接和摘要，适合查找公开网页资料。"""
+        """搜网页，返回标题、链接和摘要。用来查公开资料。"""
         try:
             if search_config.backend == "ddgs":
                 results = DDGS(timeout=10).text(query, max_results=search_config.max_results)

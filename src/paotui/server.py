@@ -1,7 +1,6 @@
-"""给本机或内网客户端使用的 HTTP SSE 服务。
+"""HTTP SSE 服务。
 
-这个服务不做鉴权，CLI 默认绑定 127.0.0.1；若要暴露到更大网络，调用方需要先补上
-合适的访问控制。
+这里没有鉴权，CLI 默认监听 127.0.0.1。要开放到更大网络，调用方自己加访问控制。
 """
 
 import json
@@ -19,14 +18,14 @@ from paotui.events import run_stream_async
 
 
 class ChatRequest(BaseModel):
-    """聊天接口的请求内容。"""
+    """聊天接口参数。"""
 
     message: str
     thread_id: str | None = None
 
 
 def create_app(config: AppConfig) -> FastAPI:
-    """按配置创建 SSE 服务。"""
+    """按配置建 SSE 服务。"""
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
@@ -39,12 +38,12 @@ def create_app(config: AppConfig) -> FastAPI:
 
     @app.get("/health")
     async def health() -> dict[str, str]:
-        """返回服务存活状态。"""
+        """健康检查。"""
         return {"status": "ok", "name": "paotui"}
 
     @app.post("/api/chat")
     async def chat(request: Request, body: ChatRequest) -> EventSourceResponse:
-        """启动一次 agent 运行，并把过程转换为 SSE。"""
+        """跑一次 agent，转成 SSE。"""
         message = body.message.strip()
         if not message:
             raise HTTPException(status_code=400, detail="消息不能为空")

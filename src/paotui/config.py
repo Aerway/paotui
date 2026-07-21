@@ -1,4 +1,4 @@
-"""配置文件的读取与校验。"""
+"""读配置并校验。"""
 
 import os
 import re
@@ -80,7 +80,7 @@ _ENV_VALUE = re.compile(r"^\$(?:([A-Za-z_][A-Za-z0-9_]*)|\{([A-Za-z_][A-Za-z0-9_
 
 
 def _expand_environment_values(value: Any, location: str = "") -> Any:
-    """只替换整个值都是环境变量引用的字符串。"""
+    """展开值里单独写的环境变量。"""
     if isinstance(value, dict):
         return {
             key: _expand_environment_values(
@@ -108,7 +108,7 @@ def _expand_environment_values(value: Any, location: str = "") -> Any:
 
 
 def load_config(path: str | Path | None = None) -> AppConfig:
-    """从 YAML 文件加载应用配置。"""
+    """读 YAML 配置。"""
     dotenv_path = Path.cwd() / ".env"
     if dotenv_path.is_file():
         load_dotenv(dotenv_path=dotenv_path)

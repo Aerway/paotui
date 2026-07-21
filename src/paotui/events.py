@@ -1,4 +1,4 @@
-"""CLI 与 SSE 共用的 agent 流事件。"""
+"""CLI 和 SSE 共用的事件。"""
 
 import json
 from collections.abc import AsyncIterator, Iterator
@@ -10,14 +10,14 @@ from pydantic import BaseModel
 
 
 class TokenEvent(BaseModel):
-    """模型生成的一段文本。"""
+    """一段模型输出。"""
 
     type: Literal["token"] = "token"
     text: str
 
 
 class ToolEvent(BaseModel):
-    """工具调用的开始或结束。"""
+    """工具开始或结束。"""
 
     type: Literal["tool"] = "tool"
     name: str
@@ -26,14 +26,14 @@ class ToolEvent(BaseModel):
 
 
 class DoneEvent(BaseModel):
-    """一次正常运行完成。"""
+    """正常跑完。"""
 
     type: Literal["done"] = "done"
     text: str
 
 
 class ErrorEvent(BaseModel):
-    """一次运行出错。"""
+    """运行报错。"""
 
     type: Literal["error"] = "error"
     message: str
@@ -43,18 +43,15 @@ StreamEvent = TokenEvent | ToolEvent | DoneEvent | ErrorEvent
 
 
 def _message_text(message: Any) -> str:
-    """从消息内容中取出可展示的文本。"""
     text = getattr(message, "text", "")
     return text if isinstance(text, str) else ""
 
 
 def _shorten(value: Any) -> str:
-    """把事件详情限制在适合界面展示的长度。"""
     return str(value)[:200]
 
 
 def _tool_call_detail(tool_call: dict[str, Any]) -> str:
-    """格式化工具调用参数。"""
     try:
         arguments = json.dumps(tool_call.get("args", {}), ensure_ascii=False, default=str)
     except (TypeError, ValueError):
@@ -63,7 +60,7 @@ def _tool_call_detail(tool_call: dict[str, Any]) -> str:
 
 
 def _update_events(update: dict[str, Any]) -> tuple[list[ToolEvent], bool]:
-    """从图节点更新中提取工具事件和是否应清空文本缓冲区。"""
+    """从节点更新里找工具事件；有工具调用就清空文本缓存。"""
     events: list[ToolEvent] = []
     has_tool_calls = False
 
@@ -95,7 +92,7 @@ def _update_events(update: dict[str, Any]) -> tuple[list[ToolEvent], bool]:
 
 
 def run_stream_sync(agent: Any, user_text: str, thread_id: str) -> Iterator[StreamEvent]:
-    """同步运行 agent，并转换为统一流事件。"""
+    """同步跑 agent，产出流事件。"""
     text_buffer = ""
     inputs = {"messages": [HumanMessage(user_text)]}
     config = {"configurable": {"thread_id": thread_id}}
@@ -124,7 +121,7 @@ def run_stream_sync(agent: Any, user_text: str, thread_id: str) -> Iterator[Stre
 
 
 async def run_stream_async(agent: Any, user_text: str, thread_id: str) -> AsyncIterator[StreamEvent]:
-    """异步运行 agent，并转换为统一流事件。"""
+    """异步跑 agent，产出流事件。"""
     text_buffer = ""
     inputs = {"messages": [HumanMessage(user_text)]}
     config = {"configurable": {"thread_id": thread_id}}

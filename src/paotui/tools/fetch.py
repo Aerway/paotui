@@ -1,4 +1,4 @@
-"""网页抓取工具。"""
+"""抓网页正文。"""
 
 import ipaddress
 import socket
@@ -15,12 +15,12 @@ _MAX_REDIRECTS = 5
 _REDIRECT_STATUS_CODES = {301, 302, 303, 307, 308}
 _SUPPORTED_CONTENT_TYPES = ("text/html", "text/plain", "application/xhtml")
 
-# 保留为模块级引用，方便离线测试替换为使用 MockTransport 的客户端。
+# 测试里会把它替换成带 MockTransport 的客户端。
 HTTP_CLIENT_FACTORY = httpx.Client
 
 
 def _check_url(url: str) -> str | None:
-    """检查 URL 协议和解析出的地址，拦截内网地址以降低 SSRF 风险。"""
+    """检查 URL 和解析到的地址，挡掉内网地址。"""
     try:
         parsed = urlparse(url)
         if parsed.scheme not in {"http", "https"}:
@@ -46,18 +46,18 @@ def _check_url(url: str) -> str | None:
 
 
 def _truncate(text: str, max_chars: int) -> str:
-    """截断超长正文，并向调用方说明。"""
+    """正文太长就截断。"""
     if len(text) <= max_chars:
         return text
     return f"{text[:max_chars]}\n（内容已截断，仅显示前 {max_chars} 个字符）"
 
 
 def make_fetch_tool(fetch_config: FetchToolConfig):
-    """按配置创建网页正文抓取工具。"""
+    """按配置建抓取工具。"""
 
     @tool
     def web_fetch(url: str) -> str:
-        """抓取公开网页并提取为 Markdown 正文，适合阅读链接中的文章内容。"""
+        """抓公开网页，提取 Markdown 正文。用来读链接里的文章。"""
         current_url = url
         redirects = 0
         try:
@@ -67,7 +67,7 @@ def make_fetch_tool(fetch_config: FetchToolConfig):
                     if url_error:
                         return url_error
 
-                    # 校验与实际连接之间仍存在 DNS 重绑定竞态；个人本机用途可接受。
+                    # DNS 校验完到实际连接之间还有重绑定竞态；本机使用暂时接受这个风险。
                     with client.stream("GET", current_url) as response:
                         if response.status_code in _REDIRECT_STATUS_CODES:
                             if redirects >= _MAX_REDIRECTS:

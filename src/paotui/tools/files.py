@@ -1,4 +1,4 @@
-"""工作区内的文件工具。"""
+"""工作目录里的文件工具。"""
 
 import os
 import re
@@ -16,7 +16,7 @@ _FILE_LOCK = threading.Lock()
 
 
 def _resolve_in_root(root: Path, path_text: str) -> Path:
-    """解析路径，并确保解析后的真实路径仍在工作目录内。"""
+    """解析路径，连同软链接也得还在工作目录内。"""
     resolved_root = root.resolve()
     candidate = Path(path_text)
     resolved_path = (candidate if candidate.is_absolute() else resolved_root / candidate).resolve(
@@ -28,22 +28,21 @@ def _resolve_in_root(root: Path, path_text: str) -> Path:
 
 
 def _truncate(text: str, limit: int, message: str) -> str:
-    """截断过长文本，并保留给调用方的说明。"""
+    """文本太长就截断。"""
     if len(text) <= limit:
         return text
     return f"{text[:limit]}\n（{message}）"
 
 
 def make_file_tools(root: Path) -> list:
-    """创建限定在指定工作目录内的文件工具。"""
+    """给指定工作目录建文件工具。"""
     resolved_root = root.resolve()
 
     @tool
     def read_file(path: str) -> str:
-        """读取工作目录内的文本文件。
+        """读取工作目录里的文本文件。
 
-        参数：path 是相对于工作目录的文件路径，也可传入工作目录内的绝对路径。
-        文件按 UTF-8 读取，无法解码的字符会替换；最多返回 50000 个字符。
+        path 可以是相对路径，也可以是目录内绝对路径。按 UTF-8 读取，解不开的字符替换；最多返回 50000 个字符。
         """
         try:
             target = _resolve_in_root(resolved_root, path)
@@ -61,9 +60,9 @@ def make_file_tools(root: Path) -> list:
 
     @tool
     def write_file(path: str, content: str) -> str:
-        """向工作目录内写入文本文件，必要时自动创建父目录。
+        """写文本到工作目录，父目录没有会创建。
 
-        参数：path 是相对于工作目录的目标文件路径；content 是要以 UTF-8 写入的完整文本内容。
+        path 是相对目标路径；content 是按 UTF-8 写入的完整文本。
         """
         try:
             target = _resolve_in_root(resolved_root, path)
@@ -80,9 +79,9 @@ def make_file_tools(root: Path) -> list:
 
     @tool
     def edit_file(path: str, old_string: str, new_string: str) -> str:
-        """精确替换工作目录内文件中的一段文本。
+        """替换工作目录里的一段文本。
 
-        参数：path 是目标文件路径；old_string 是待替换文本，必须恰好出现一次；new_string 是替换后的文本。
+        path 是目标路径；old_string 必须刚好出现一次；new_string 是替换后的文本。
         """
         try:
             target = _resolve_in_root(resolved_root, path)
@@ -104,9 +103,9 @@ def make_file_tools(root: Path) -> list:
 
     @tool
     def list_dir(path: str = ".") -> str:
-        """列出工作目录内某个目录的内容。
+        """列出工作目录里的目录。
 
-        参数：path 是相对于工作目录的目录路径，默认是工作目录本身。目录项最多返回 200 个；目录名会带 /，文件名会显示字节大小。
+        path 是相对目录路径，默认是工作目录；最多 200 项。目录名带 /，文件名显示字节大小。
         """
         try:
             target = _resolve_in_root(resolved_root, path)
@@ -131,9 +130,9 @@ def make_file_tools(root: Path) -> list:
 
     @tool
     def grep_files(pattern: str, path: str = ".") -> str:
-        """在工作目录内的文本文件中用正则表达式搜索内容。
+        """用 Python 正则搜工作目录里的文本文件。
 
-        参数：pattern 是 Python 正则表达式；path 是起始文件或目录，默认是工作目录。返回“相对路径:行号:行内容”，最多 100 条命中；隐藏目录、常见依赖目录和大于 1MB 的文件会跳过。
+        pattern 是正则表达式；path 是起始文件或目录，默认是工作目录。返回“相对路径:行号:行内容”，最多 100 条。跳过隐藏目录、常见依赖目录和大于 1MB 的文件。
         """
         try:
             regex = re.compile(pattern)

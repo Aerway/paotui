@@ -11,7 +11,6 @@ def make_config(
     search_enabled: bool = True,
     fetch_enabled: bool = True,
 ) -> AppConfig:
-    """创建只关注工具开关的应用配置。"""
     return AppConfig.model_validate(
         {
             "model": {"name": "test-model"},

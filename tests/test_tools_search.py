@@ -6,7 +6,6 @@ from paotui.tools import search
 
 
 def invoke(tool: object, query: str) -> str:
-    """调用搜索工具并取得字符串结果。"""
     return tool.invoke({"query": query})  # type: ignore[union-attr]
 
 

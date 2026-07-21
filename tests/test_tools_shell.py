@@ -5,7 +5,6 @@ from paotui.tools.shell import make_shell_tool
 
 
 def invoke(tool: object, command: str) -> str:
-    """调用 shell 工具并取得字符串结果。"""
     return tool.invoke({"command": command})  # type: ignore[union-attr]
 
 

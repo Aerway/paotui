@@ -1,4 +1,3 @@
-"""主助手装配端到端冒烟测试。"""
 
 from langchain_core.messages import AIMessage
 from langgraph.checkpoint.memory import InMemorySaver

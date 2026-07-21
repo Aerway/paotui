@@ -1,4 +1,4 @@
-"""工具装配入口。"""
+"""装配工具。"""
 
 from pathlib import Path
 
@@ -11,7 +11,7 @@ from paotui.tools.task import make_task_tool
 
 
 def get_tools(config: AppConfig, *, with_task: bool = True) -> list:
-    """按配置返回可用工具。"""
+    """按配置取启用的工具。"""
     root = Path.cwd()
     tools = []
     if config.tools.files.enabled:

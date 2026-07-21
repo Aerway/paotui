@@ -21,7 +21,6 @@ _TASK_DESCRIPTION = (
 
 
 def _message_text(message: Any) -> str:
-    """取出消息中的文本内容。"""
     text = getattr(message, "text", "")
     if isinstance(text, str):
         return text
@@ -30,21 +29,20 @@ def _message_text(message: Any) -> str:
 
 
 def _truncate_result(text: str) -> str:
-    """限制子任务结果长度，避免工具输出过大。"""
+    """子任务结果太长就截断。"""
     if len(text) <= _MAX_RESULT_CHARS:
         return text
     return f"{text[:_MAX_RESULT_CHARS]}\n（结果已截断，仅显示前 {_MAX_RESULT_CHARS} 个字符）"
 
 
 def make_task_tool(config: AppConfig):
-    """创建可并发受限地运行临时子助手的工具。"""
+    """建一个带并发上限的临时子助手工具。"""
     semaphore = threading.Semaphore(config.tools.task.max_concurrency)
     sync_semaphore_held: ContextVar[bool] = ContextVar(
         "sync_semaphore_held", default=False
     )
 
     async def _run_task(description: str) -> str:
-        """运行一个临时子助手。"""
         semaphore_already_held = sync_semaphore_held.get()
         if not semaphore_already_held:
             await asyncio.to_thread(semaphore.acquire)
@@ -76,7 +74,7 @@ def make_task_tool(config: AppConfig):
                 semaphore.release()
 
     def run_task_sync(description: str) -> str:
-        """在同步工具调用中运行临时子助手。"""
+        """给同步工具调用用。"""
         with semaphore:
             token = sync_semaphore_held.set(True)
             try:

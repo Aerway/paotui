@@ -1,5 +1,3 @@
-"""HTTP SSE 服务测试。"""
-
 import json
 from pathlib import Path
 
@@ -41,7 +39,7 @@ def _parse_sse(text: str) -> list[tuple[str, str]]:
 
 @pytest.fixture(autouse=True)
 def _reset_sse_exit_event() -> None:
-    """避免不同 TestClient 的事件循环复用 SSE 库的全局事件。"""
+    """清掉 SSE 库的全局退出事件，免得 TestClient 之间串掉。"""
     AppStatus.should_exit_event = None
     yield
     AppStatus.should_exit_event = None

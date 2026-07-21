@@ -11,7 +11,7 @@ def _address(ip: str) -> tuple[int, int, int, str, tuple[str, int]]:
 
 
 def _install_resolver(monkeypatch, addresses: dict[str, str]) -> None:
-    """安装完全离线的域名解析替身。"""
+    """把 DNS 解析换成离线替身。"""
     def fake_getaddrinfo(host: str, port: int):
         return [_address(addresses[host])]
 
@@ -29,7 +29,6 @@ def _make_tool(monkeypatch, handler, max_chars: int = 20_000):
 
 
 def invoke(tool: object, url: str) -> str:
-    """调用抓取工具并取得字符串结果。"""
     return tool.invoke({"url": url})  # type: ignore[union-attr]
 
 

@@ -1,4 +1,4 @@
-"""受限的命令执行工具。"""
+"""限制命令执行的工具。"""
 
 import shlex
 import subprocess
@@ -15,21 +15,21 @@ _MAX_CAPTURE_BYTES = 200_000
 
 
 def _truncate_output(text: str) -> str:
-    """截断命令输出，避免单次工具结果过大。"""
+    """输出太长就截断。"""
     if len(text) <= _MAX_OUTPUT_CHARS:
         return text
     return f"{text[:_MAX_OUTPUT_CHARS]}\n（输出已截断，仅显示前 {_MAX_OUTPUT_CHARS} 个字符）"
 
 
 def make_shell_tool(shell_config: ShellToolConfig, root: Path):
-    """创建在指定工作目录运行的受限命令工具。"""
+    """给指定工作目录建受限命令工具。"""
     resolved_root = root.resolve()
 
     @tool
     def run_shell(command: str) -> str:
-        """在工作目录中执行一条不含 shell 语法的命令。
+        """在工作目录里执行一条不含 shell 语法的命令。
 
-        参数：command 是完整命令文本，会按空格和引号拆成参数。只支持单条命令，不能使用管道、重定向、变量或命令连接；默认只能执行配置允许的命令。
+        command 是完整命令，按空格和引号拆参数。只跑一条；不能用管道、重定向、变量或命令连接。默认只准配置里允许的命令。
         """
         if any(character in command for character in _UNSUPPORTED_SHELL_CHARACTERS):
             return "错误：不支持 shell 语法，只能执行单条命令"

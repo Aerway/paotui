@@ -1,4 +1,4 @@
-"""Agent 契约测试使用的模型替身。"""
+"""Agent 契约测试用的假模型。"""
 
 from collections.abc import Iterator
 from typing import Any
@@ -10,12 +10,11 @@ from langchain_core.outputs import ChatGenerationChunk
 
 
 class FakeToolCallingModel(FakeMessagesListChatModel):
-    """支持工具绑定且可按顺序返回消息的假模型。"""
+    """测试里用的可绑工具假模型，按顺序回消息。"""
 
     error: Exception | None = None
 
     def bind_tools(self, tools: Any, **kwargs: Any) -> "FakeToolCallingModel":
-        """假模型不需要真正绑定工具。"""
         return self
 
     def _generate(self, *args: Any, **kwargs: Any) -> Any:
@@ -30,7 +29,7 @@ class FakeToolCallingModel(FakeMessagesListChatModel):
         run_manager: CallbackManagerForLLMRun | None = None,
         **kwargs: Any,
     ) -> Iterator[ChatGenerationChunk]:
-        """以 AIMessageChunk 形式返回预设消息，覆盖真实流式事件形状。"""
+        """把预设消息包装成 AIMessageChunk，模拟真实流式事件。"""
         result = self._generate(messages, stop=stop, run_manager=run_manager, **kwargs)
         message = result.generations[0].message
         if not isinstance(message, AIMessage):

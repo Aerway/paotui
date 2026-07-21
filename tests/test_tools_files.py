@@ -7,12 +7,10 @@ from paotui.tools.files import make_file_tools
 
 
 def make_tools(root: Path) -> dict[str, object]:
-    """按名称取出测试用文件工具。"""
     return {item.name: item for item in make_file_tools(root)}
 
 
 def invoke(tools: dict[str, object], name: str, **arguments: str) -> str:
-    """调用工具并取得字符串结果。"""
     return tools[name].invoke(arguments)  # type: ignore[union-attr]
 
 
